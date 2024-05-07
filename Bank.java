@@ -1,42 +1,127 @@
 //********* Cash withdrawal program using Java *********
 
-import java.util.*;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-public class Bank {
+public class Bank extends Application {
+    private BankAccount bankAccount;
+
+    @Override
+    public void start(Stage primaryStage) {
+        VBox vbox = new VBox(10);
+        vbox.setPadding(new Insets(20));
+
+        Label nameLabel = new Label("Enter Customer Name:");
+        TextField nameField = new TextField();
+
+        Label accountLabel = new Label("Enter Account Number:");
+        TextField accountField = new TextField();
+
+        Label depositLabel = new Label("Enter Deposit Amount:");
+        TextField depositField = new TextField();
+
+        Label withdrawLabel = new Label("Enter Withdrawal Amount:");
+        TextField withdrawField = new TextField();
+
+        Button checkBalanceButton = new Button("Check Balance");
+        Button depositButton = new Button("Deposit Amount");
+        Button withdrawButton = new Button("Withdraw Amount");
+        Button previousTransactionButton = new Button("Previous Transaction");
+        Button exitButton = new Button("Exit");
+        Button createAccountButton = new Button("Create Account");
+
+        Label messageLabel = new Label();
+
+        checkBalanceButton.setOnAction(e -> {
+            if (bankAccount != null) {
+                double balance = bankAccount.getBalance();
+                messageLabel.setText("Balance = " + balance);
+                System.out.println("Checked balance: " + balance);
+            }
+        });
+
+        depositButton.setOnAction(e -> {
+            if (bankAccount != null) {
+                String amountText = depositField.getText();
+                double amount = Double.parseDouble(amountText);
+                bankAccount.deposit(amount);
+                messageLabel.setText("Deposited: " + amount);
+                System.out.println("Deposited: " + amount);
+            }
+        });
+
+        withdrawButton.setOnAction(e -> {
+            if (bankAccount != null) {
+                String amountText = withdrawField.getText();
+                double amount = Double.parseDouble(amountText);
+                bankAccount.withdraw(amount);
+                messageLabel.setText("Withdrawn: " + amount);
+                System.out.println("Withdrawn: " + amount);
+            }
+        });
+
+        previousTransactionButton.setOnAction(e -> {
+            if (bankAccount != null) {
+                double prevTrans = bankAccount.getPreviousTrans();
+                messageLabel.setText("Previous Transaction: " + prevTrans);
+                System.out.println("Previous Transaction: " + prevTrans);
+            }
+        });
+
+        exitButton.setOnAction(e -> {
+            primaryStage.close();
+        });
+
+        createAccountButton.setOnAction(e -> {
+            String name = nameField.getText();
+            String accountNumber = accountField.getText();
+            if (accountNumber.length() > 10) {
+                messageLabel.setText("Account number cannot exceed 10 digits");
+                System.out.println("Account number cannot exceed 10 digits");
+            } else {
+                bankAccount = new BankAccount(name, accountNumber);
+                messageLabel.setText("Account created for " + name);
+                System.out.println("Account created for " + name);
+            }
+        });
+
+        vbox.getChildren().addAll(nameLabel, nameField, accountLabel, accountField, depositLabel, depositField, withdrawLabel, withdrawField, checkBalanceButton, depositButton,
+                withdrawButton,
+                previousTransactionButton, exitButton, createAccountButton, messageLabel);
+
+        Scene scene = new Scene(vbox, 300, 200);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Enter Customer name: ");
-        String name = sc.nextLine();
-        while (!name.matches("[a-zA-Z\\.\\s]+")) {
-            System.out.println("Please enter a valid Customer name!!!");
-            name = sc.nextLine();
-        }
-        System.out.println("Enter your Account Number:");
-        String AccountNo = sc.nextLine();
-        while (!AccountNo.matches("^[0-9]{10}$")) {
-            System.out.println("Please enter a valid Account Number!!!");
-            AccountNo = sc.nextLine();
-        }
-        BankAccount obj1 = new BankAccount(name, AccountNo);
-        obj1.menu();
+        launch(args);
     }
 }
 
 class BankAccount {
-    double bal;
-    double prevTrans;
-    String customerName;
-    String AccountNo;
+    private double bal;
+    private double prevTrans;
+    private String customerName;
+    private String accountNo;
 
-    BankAccount(String customerName, String AccountNo) {
+    BankAccount(String customerName, String accountNo) {
         this.customerName = customerName;
-        this.AccountNo = AccountNo;
+        this.accountNo = accountNo;
+        System.out.println("Account created for " + customerName + " with account number " + accountNo);
     }
 
     void deposit(double amount) {
         if (amount != 0) {
             bal += amount;
             prevTrans = amount;
+            System.out.println("Deposited: " + amount);
         }
     }
 
@@ -44,78 +129,19 @@ class BankAccount {
         if (amt != 0 && bal >= amt) {
             bal -= amt;
             prevTrans = -amt;
+            System.out.println("Withdrawn: " + amt);
         } else if (bal < amt) {
             System.out.println("Bank balance insufficient!!!");
         }
     }
 
-    void getPreviousTrans() {
-        if (prevTrans > 0) {
-        } else if (prevTrans < 0) {
-            System.out.println("Withdrawn: " + Math.abs(prevTrans));
-        } else {
-            System.out.println("Deposited: " + prevTrans);
-            System.out.println("No transaction occurred");
-        }
+    double getBalance() {
+        System.out.println("Balance: " + bal);
+        return bal;
     }
 
-    void menu() {
-        char option;
-        Scanner sc = new Scanner(System.in);
-        System.out.println("\n");
-
-        System.out.println("Welcome " + customerName);
-        System.out.println("Your Bank Account No:" + AccountNo);
-        System.out.println("\n");
-        System.out.println("1. Check Balance");
-        System.out.println("2. Deposit Amount");
-        System.out.println("3. Withdraw Amount");
-        System.out.println("4. Previous Transaction");
-        System.out.println("5. Exit");
-
-        do {
-            System.out.println("\n");
-            System.out.println("Choose an option");
-            option = sc.next().charAt(0);
-
-            switch (option) {
-                case '1':
-                    System.out.println("......................");
-                    System.out.println("Balance =" + bal);
-                    System.out.println("......................");
-                    break;
-                case '2':
-                    System.out.println("......................");
-                    System.out.println("Enter a amount to deposit :");
-                    double amt = sc.nextDouble();
-                    deposit(amt);
-                    System.out.println("......................");
-                    break;
-                case '3':
-                    System.out.println("......................");
-                    System.out.println("Enter a amount to Withdraw :");
-                    double amtW = sc.nextDouble();
-                    withdraw(amtW);
-                    System.out.println("......................");
-                    break;
-                case '4':
-                    System.out.println("......................");
-                    System.out.println("Previous Transaction:");
-                    getPreviousTrans();
-                    System.out.println("......................");
-                    break;
-                case '5':
-                    System.out.println("......................");
-                    break;
-                default:
-                    System.out.println("Choose a correct option to proceed");
-                    break;
-            }
-
-        } while (option != '5');
-
-        System.out.println("Thank you for using our banking service");
-        System.out.println("Have a good day");
-        System.out.println("......................");
+    double getPreviousTrans() {
+        System.out.println("Previous Transaction: " + prevTrans);
+        return prevTrans;
     }
 }
